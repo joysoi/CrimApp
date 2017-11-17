@@ -12,6 +12,7 @@ public class CrimeLab {
     private static CrimeLab sCrimeLab;
     private List<Crime> mCrimes;
     Crime crime = new Crime();
+//    LinkedHashMap<UUID, Crime> hashMap = new LinkedHashMap();
 
     static CrimeLab get(Context context) {
         if (sCrimeLab == null) {
@@ -27,6 +28,7 @@ public class CrimeLab {
             crime.setTitle("Crime #" + " " + i);
             crime.setSolved(i % 2 == 0);
             crime.setRequiredPolice(i % 3 == 0);
+//            hashMap.put(crime.getID(), crime);
             mCrimes.add(crime);
         }
     }
