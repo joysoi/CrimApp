@@ -3,6 +3,7 @@ package com.example.nikola.criminal;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -20,19 +21,13 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
-    private static final String ARG_POS_ID = "position";
-    private static final String ARG_CRIME_PARCELABLE = "extra";
+    private static final String DATE_PICKER = "pick_a_date";
+    private static final int REQUEST_DATE = 0;
     private Crime mCrime;
-    private EditText mTitleField;
-    private Button mDateButton;
-    private CheckBox mSolvedCheckBox;
 
     public static CrimeFragment newInstance(UUID crimeId) {
-
         Bundle args = new Bundle();
         args.putSerializable(ARG_CRIME_ID, crimeId);
-//        args.putInt(ARG_POS_ID, idPosition);
-//        args.putParcelable(ARG_CRIME_PARCELABLE, crime);
         CrimeFragment crimeFragment = new CrimeFragment();
         crimeFragment.setArguments(args);
         return crimeFragment;
@@ -41,13 +36,8 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        mCrime = getActivity().getIntent().getParcelableExtra(ARG_CRIME_PARCELABLE);
-//        mCrime = getArguments().getParcelable(ARG_CRIME_PARCELABLE);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
-//        int idPos = getArguments().getInt(ARG_POS_ID);
-//
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
-
     }
 
     @Nullable
@@ -55,9 +45,9 @@ public class CrimeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime, container, false);
 
-        mTitleField = v.findViewById(R.id.crime_title);
-        mTitleField.setText(mCrime.getTitle());
-        mTitleField.addTextChangedListener(new TextWatcher() {
+        EditText titleField = v.findViewById(R.id.crime_title);
+        titleField.setText(mCrime.getTitle());
+        titleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -74,13 +64,21 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        mDateButton = v.findViewById(R.id.crime_date);
-        mDateButton.setText(DateFormat.getDateInstance(DateFormat.FULL).format(mCrime.getDate()));
-        mDateButton.setEnabled(false);
+        Button dateButton = v.findViewById(R.id.crime_date);
+        dateButton.setText(DateFormat.getDateInstance(DateFormat.FULL).format(mCrime.getDate()));
+        dateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager manager = getFragmentManager();
+                DatePickerFragment dialogFragment = DatePickerFragment.onNewInstance(mCrime.getDate());
+                dialogFragment.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
+                dialogFragment.show(manager, DATE_PICKER);
+            }
+        });
 
-        mSolvedCheckBox = v.findViewById(R.id.crime_solved);
-        mSolvedCheckBox.setChecked(mCrime.isSolved());
-        mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        CheckBox solvedCheckBox = v.findViewById(R.id.crime_solved);
+        solvedCheckBox.setChecked(mCrime.isSolved());
+        solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean setChecked) {
                 mCrime.setSolved(setChecked);
