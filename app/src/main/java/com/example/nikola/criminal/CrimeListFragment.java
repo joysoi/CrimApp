@@ -23,6 +23,7 @@ public class CrimeListFragment extends Fragment {
     private List<Crime> mCrimes;
     private int mLastPositionChanged = -1;
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -98,6 +99,7 @@ public class CrimeListFragment extends Fragment {
         //        private Button mCallPoliceButton;
         private ImageView mSolvedImageView;
         private Crime mCrime;
+
 
         public CrimeViewHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_crime, parent, false));
