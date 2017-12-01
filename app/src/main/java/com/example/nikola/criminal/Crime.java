@@ -13,6 +13,8 @@ public class Crime implements Parcelable {
     private Date mDate;
     private boolean mSolved;
     private boolean mRequiredPolice;
+    private int mHour;
+    private int mMinute;
 
     public Crime() {
         mID = UUID.randomUUID();
@@ -33,6 +35,23 @@ public class Crime implements Parcelable {
 
     public Date getDate() {
         return mDate;
+    }
+
+    public int getHour() {
+        return mHour;
+    }
+
+    public int getMinute() {
+        return mMinute;
+    }
+
+    public void setHour(int hour) {
+
+        mHour = hour;
+    }
+
+    public void setMinute(int minute) {
+        mMinute = minute;
     }
 
     public void setDate(Date date) {
