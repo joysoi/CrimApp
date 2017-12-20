@@ -3,9 +3,7 @@ package com.example.nikola.criminal;
 import android.content.Context;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -13,7 +11,8 @@ public class CrimeLab {
 
     private static CrimeLab sCrimeLab;
 
-    private Map<UUID, Crime> mCrimes;
+    //    private Map<UUID, Crime> mCrimes;
+    private List<Crime> mCrimes;
 
     static CrimeLab get(Context context) {
         if (sCrimeLab == null) {
@@ -22,25 +21,38 @@ public class CrimeLab {
         return sCrimeLab;
     }
 
-    private CrimeLab(Context context) {
-        mCrimes = new LinkedHashMap<>();
-        for (int i = 0; i < 100; i++) {
-            Crime crime = new Crime();
-            crime.setTitle("Crime #" + " " + i);
-            crime.setSolved(i % 2 == 0);
-//            crime.setRequiredPolice(i % 3 == 0);
-            mCrimes.put(crime.getID(), crime);
+    public void addCrimes(Crime c) {
+        mCrimes.add(c);
+    }
 
-        }
+    private CrimeLab(Context context) {
+        mCrimes = new ArrayList<>();
+
+//        linked hashMap:
+//        mCrimes = new LinkedHashMap<>();
+//        for (int i = 0; i < 100; i++) {
+//            Crime crime = new Crime();
+//            crime.setTitle("Crime #" + " " + i);
+//            crime.setSolved(i % 2 == 0);
+////            crime.setRequiredPolice(i % 3 == 0);
+//            mCrimes.put(crime.getID(), crime);
+//
+//        }
     }
 
     List<Crime> getCrimes() {
-
-        return new ArrayList<>(mCrimes.values());
+        return mCrimes;
+//        return new ArrayList<>(mCrimes.values());
     }
 
 
     public Crime getCrime(UUID id) {
-        return mCrimes.get(id);
+//        return mCrimes.get(id);
+        for (Crime crime : mCrimes) {
+            if (crime.getID().equals(id)) {
+                return crime;
+            }
+        }
+        return null;
     }
 }
