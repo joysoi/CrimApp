@@ -1,16 +1,22 @@
 <resources>
-    <string name="app_name">SoccerJar</string>
-    <string name="year">Year:" "</string>
-    <string name="number_of_matches">Number of matches:" "</string>
-    <string name="number_of_teams">Number of teams:" "</string>
-    <string name="number_of_games">Number of games:" "</string>
-    <string name="action_forward">forward</string>
-    <string name="fixturesActivity">Fixtures</string>
-    <string name="show_previous_results">Show Previous Results</string>
-    <string name="search_teams">Search teams</string>
-    <string name="search_hint">team name</string>
-    <string name="app_label">SJ</string>
-    <string name="noListPresented">No list presented…</string>
-    <string name="please_wait">Please wait…</string>
-    <string name="table_loading">League table loading…</string>
+    <string name="app_name">Criminal</string>
+    <string name="title_hint">Enter a title for the crime</string>
+    <string name="title_label">Title</string>
+    <string name="crime_details_label">Detail</string>
+    <string name="crime_solved_label">Solved</string>
+    <string name="contact_police">Contact police</string>
+    <string name="date_picker_title">Date of crime:</string>
+    <string name="first_crime_button">First crime</string>
+    <string name="last_crime_button">Last crime</string>
+    <string name="new_crime">New Crime</string>
+    <string name="show_subtitle">Show subtitle</string>
+    <string name="hide_subtitle">Hide subtitle</string>
+    <string name="subtitle_format">%1$d crimes</string>
+    <string name="delete_crime">Delete Crime</string>
+    <string name="no_crimes_note">There are no crimes</string>
+    <string name="edit_text_empty_warning">Cannot be empty</string>
+    <plurals name="subtitle_plural">
+        <item quantity="one">%1$d crime</item>
+        <item quantity="other">%1$d crimes</item>
+    </plurals>
 </resources>
