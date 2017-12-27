@@ -26,6 +26,7 @@ public class CrimeLab {
     }
 
     private CrimeLab(Context context) {
+
         mCrimes = new ArrayList<>();
 
 //        linked hashMap:
