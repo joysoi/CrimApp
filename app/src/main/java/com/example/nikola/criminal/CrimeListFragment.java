@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,14 +46,24 @@ public class CrimeListFragment extends Fragment {
             mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
         }
         updateUI();
+        TextView noDataView = view.findViewById(R.id.no_data_txt_view);
+        Button newCrimeBtn = view.findViewById(R.id.new_crime_btn);
+        newCrimeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createNewCrime();
+            }
+        });
+        if (mAdapter.getItemCount() == 0) {
+            mCrimeRecyclerView.setVisibility(View.GONE);
+            noDataView.setVisibility(View.VISIBLE);
+            newCrimeBtn.setVisibility(View.VISIBLE);
+        } else {
+            mCrimeRecyclerView.setVisibility(View.VISIBLE);
+            noDataView.setVisibility(View.GONE);
+            newCrimeBtn.setVisibility(View.GONE);
+        }
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateUI();
-
     }
 
     @Override
@@ -78,11 +89,7 @@ public class CrimeListFragment extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.new_crime:
-                Crime crime = new Crime();
-                CrimeLab.get(getActivity()).addCrimes(crime);
-//          once created, the crime has to be edited:
-                Intent intent = CrimePagerActivity.onNewIntent(getActivity(), crime.getID());
-                startActivity(intent);
+                createNewCrime();
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -94,10 +101,18 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
+    private void createNewCrime() {
+        Crime crime = new Crime();
+        CrimeLab.get(getActivity()).addCrimes(crime);
+//          once created, the crime has to be edited:
+        Intent intent = CrimePagerActivity.onNewIntent(getActivity(), crime.getID());
+        startActivity(intent);
+    }
+
     private void updateSubtitle() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        String subtitle = getResources().getQuantityString(R.plurals.subtitle_plural, crimeCount, crimeCount);
 
         if (!mSubtitleVisible) {
             subtitle = null;
