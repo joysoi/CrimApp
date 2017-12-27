@@ -8,9 +8,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -48,7 +52,7 @@ public class CrimeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
-
+        setHasOptionsMenu(true);
     }
 
     @SuppressLint("DefaultLocale")
@@ -57,22 +61,30 @@ public class CrimeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime, container, false);
 
-        EditText titleField = v.findViewById(R.id.crime_title);
+        final EditText titleField = v.findViewById(R.id.crime_title);
         titleField.setText(mCrime.getTitle());
         titleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                if(charSequence.length() == 0){
+                    titleField.setError(getString(R.string.edit_text_empty_warning));
+                }
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                mCrime.setTitle(String.valueOf((charSequence)));
+                if (TextUtils.isEmpty(charSequence)) {
+                    titleField.setError(getString(R.string.edit_text_empty_warning));
+                } else {
+                    mCrime.setTitle(String.valueOf((charSequence)));
+                }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+              if (editable.length() == 0){
+                  titleField.setError(getString(R.string.edit_text_empty_warning));
+              }
             }
         });
 
@@ -122,6 +134,24 @@ public class CrimeFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.delete_item:
+                getActivity().finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
             return;
@@ -160,5 +190,7 @@ public class CrimeFragment extends Fragment {
 
         return Math.min(widthDp, heightDp);
     }
+
+
 }
 
