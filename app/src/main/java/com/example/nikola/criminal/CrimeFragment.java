@@ -22,9 +22,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import com.example.nikola.criminal.database.Crime;
+import com.example.nikola.criminal.database.DbHelper;
+
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.UUID;
 
 
 public class CrimeFragment extends Fragment {
@@ -39,9 +41,9 @@ public class CrimeFragment extends Fragment {
     private Button mTimeButton;
 
 
-    public static CrimeFragment newInstance(UUID crimeId) {
+    public static CrimeFragment newInstance(int crimeId) {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_CRIME_ID, crimeId);
+        args.putInt(ARG_CRIME_ID, crimeId);
         CrimeFragment crimeFragment = new CrimeFragment();
         crimeFragment.setArguments(args);
         return crimeFragment;
@@ -50,8 +52,9 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
-        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+        int crimeId = getArguments().getInt(ARG_CRIME_ID);
+//        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+        mCrime = DbHelper.getInstance(getActivity()).getSingleCrime(crimeId);
         setHasOptionsMenu(true);
     }
 
@@ -66,7 +69,7 @@ public class CrimeFragment extends Fragment {
         titleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.length() == 0){
+                if (charSequence.length() == 0) {
                     titleField.setError(getString(R.string.edit_text_empty_warning));
                 }
             }
@@ -82,9 +85,9 @@ public class CrimeFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-              if (editable.length() == 0){
-                  titleField.setError(getString(R.string.edit_text_empty_warning));
-              }
+                if (editable.length() == 0) {
+                    titleField.setError(getString(R.string.edit_text_empty_warning));
+                }
             }
         });
 
@@ -144,6 +147,7 @@ public class CrimeFragment extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.delete_item:
+                DbHelper.getInstance(getActivity()).deleteCrime(mCrime);
                 getActivity().finish();
                 return true;
             default:
