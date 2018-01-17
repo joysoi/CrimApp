@@ -13,8 +13,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.nikola.criminal.database.Crime;
+import com.example.nikola.criminal.database.DbHelper;
+
 import java.util.List;
-import java.util.UUID;
 
 public class CrimePagerActivity extends AppCompatActivity {
 
@@ -31,7 +33,8 @@ public class CrimePagerActivity extends AppCompatActivity {
 
 
         viewPager = findViewById(R.id.crime_view_pager);
-        mCrimes = CrimeLab.get(this).getCrimes();
+//        mCrimes = CrimeLab.get(this).getCrimes();
+        mCrimes = DbHelper.getInstance(this).getAllCrimes();
         FragmentManager manager = getSupportFragmentManager();
 
 
@@ -53,8 +56,8 @@ public class CrimePagerActivity extends AppCompatActivity {
             }
         });
 
-        UUID uuid = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
-
+//        UUID uuid = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
+        int uuid =  getIntent().getIntExtra(EXTRA_CRIME_ID,0);
         viewPager.setAdapter(new FragmentStatePagerAdapter(manager) {
             @Override
             public int getCount() {
@@ -71,15 +74,16 @@ public class CrimePagerActivity extends AppCompatActivity {
         });
 
         for (int i = 0; i < mCrimes.size(); i++) {
-            if (mCrimes.get(i).getID().equals(uuid)) {
+            if (mCrimes.get(i).getID() == uuid) {
                 viewPager.setCurrentItem(i);
                 break;
             }
         }
     }
 
-    public static Intent onNewIntent(Context getPackage, UUID id) {
-        CrimeLab.get(getPackage);
+    public static Intent onNewIntent(Context getPackage, int id) {
+//        CrimeLab.get(getPackage);
+        DbHelper.getInstance(getPackage);
         Intent intent = new Intent(getPackage, CrimePagerActivity.class);
         intent.putExtra(EXTRA_CRIME_ID, id);
         return intent;
