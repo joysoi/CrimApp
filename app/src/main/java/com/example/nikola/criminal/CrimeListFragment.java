@@ -17,6 +17,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.nikola.criminal.database.Crime;
+import com.example.nikola.criminal.database.DbHelper;
+
 import java.text.DateFormat;
 import java.util.List;
 
@@ -103,15 +106,17 @@ public class CrimeListFragment extends Fragment {
 
     private void createNewCrime() {
         Crime crime = new Crime();
-        CrimeLab.get(getActivity()).addCrimes(crime);
+//        CrimeLab.get(getActivity()).addCrimes(crime);
+        DbHelper.getInstance(getActivity()).insertCrime(crime);
 //          once created, the crime has to be edited:
         Intent intent = CrimePagerActivity.onNewIntent(getActivity(), crime.getID());
         startActivity(intent);
     }
 
     private void updateSubtitle() {
-        CrimeLab crimeLab = CrimeLab.get(getActivity());
-        int crimeCount = crimeLab.getCrimes().size();
+//        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        DbHelper dbHelper = DbHelper.getInstance(getActivity());
+        int crimeCount = dbHelper.getAllCrimes().size();
         String subtitle = getResources().getQuantityString(R.plurals.subtitle_plural, crimeCount, crimeCount);
 
         if (!mSubtitleVisible) {
@@ -123,8 +128,9 @@ public class CrimeListFragment extends Fragment {
     }
 
     private void updateUI() {
-        CrimeLab crimeLab = CrimeLab.get(getActivity());
-        List<Crime> crimes = crimeLab.getCrimes();
+//        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        DbHelper dbHelper = DbHelper.getInstance(getActivity());
+        List<Crime> crimes = dbHelper.getAllCrimes();
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
