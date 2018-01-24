@@ -11,6 +11,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,10 +24,17 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import com.example.nikola.criminal.database.Crime;
-import com.example.nikola.criminal.database.DbHelper;
+import com.example.nikola.criminal.database.CrimeLabHelper;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.UUID;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableCompletableObserver;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class CrimeFragment extends Fragment {
@@ -36,25 +44,26 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_TIME = "pick_time";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
+    private static final String TAG = "Crime Fragment";
     private Crime mCrime;
     private Button mDateButton;
     private Button mTimeButton;
+    CompositeDisposable mCompositeDisposable;
 
 
-    public static CrimeFragment newInstance(int crimeId) {
+    public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
-        args.putInt(ARG_CRIME_ID, crimeId);
+        args.putSerializable(ARG_CRIME_ID, crimeId);
         CrimeFragment crimeFragment = new CrimeFragment();
         crimeFragment.setArguments(args);
         return crimeFragment;
+
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int crimeId = getArguments().getInt(ARG_CRIME_ID);
-//        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
-        mCrime = DbHelper.getInstance(getActivity()).getSingleCrime(crimeId);
+
         setHasOptionsMenu(true);
     }
 
@@ -63,9 +72,32 @@ public class CrimeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime, container, false);
-
+        mDateButton = v.findViewById(R.id.crime_date);
+        final CheckBox solvedCheckBox = v.findViewById(R.id.crime_solved);
         final EditText titleField = v.findViewById(R.id.crime_title);
-        titleField.setText(mCrime.getTitle());
+        UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
+//        mCrime = AppDatabase.getAppDatabase(getActivity()).mCrimeDao().getCrimeById(crimeId);
+        mCompositeDisposable = new CompositeDisposable();
+        mCompositeDisposable.add(CrimeLabHelper.getInstance().getCrimeById(crimeId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()
+                ).subscribeWith(new DisposableSingleObserver<Crime>() {
+                    @Override
+                    public void onSuccess(Crime o) {
+                        mCrime = o;
+                        titleField.setText(mCrime.getTitle());
+                        updateDate();
+                        int hour = mCrime.getHour();
+                        int minutes = mCrime.getMinute();
+                        mTimeButton.setText(String.format("%d:%02d", hour, minutes));
+                        solvedCheckBox.setChecked(mCrime.isSolved());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                }));
         titleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -80,6 +112,7 @@ public class CrimeFragment extends Fragment {
                     titleField.setError(getString(R.string.edit_text_empty_warning));
                 } else {
                     mCrime.setTitle(String.valueOf((charSequence)));
+                    populateWithCrimes(mCrime);
                 }
             }
 
@@ -91,8 +124,7 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        mDateButton = v.findViewById(R.id.crime_date);
-        updateDate();
+
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,9 +144,8 @@ public class CrimeFragment extends Fragment {
         });
 
         mTimeButton = v.findViewById(R.id.crime_time);
-        int hour = mCrime.getHour();
-        int minutes = mCrime.getMinute();
-        mTimeButton.setText(String.format("%d:%02d", hour, minutes));
+
+
         mTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,12 +156,13 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        CheckBox solvedCheckBox = v.findViewById(R.id.crime_solved);
-        solvedCheckBox.setChecked(mCrime.isSolved());
+
+
         solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean setChecked) {
                 mCrime.setSolved(setChecked);
+                populateWithCrimes(mCrime);
             }
         });
         return v;
@@ -147,12 +179,31 @@ public class CrimeFragment extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.delete_item:
-                DbHelper.getInstance(getActivity()).deleteCrime(mCrime);
+//                AppDatabase.getAppDatabase(getActivity()).mCrimeDao().deleteCrime(mCrime);
+                deleteCrime(mCrime);
                 getActivity().finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void deleteCrime(final Crime crime) {
+        mCompositeDisposable.add(CrimeLabHelper.getInstance().deleteCrime(crime)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .ignoreElements()
+                .subscribeWith(new DisposableCompletableObserver() {
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "Crime successfully deleted ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                }));
     }
 
     @Override
@@ -165,6 +216,7 @@ public class CrimeFragment extends Fragment {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
             updateDate();
+            populateWithCrimes(mCrime);
         }
 
         if (requestCode == REQUEST_TIME) {
@@ -173,11 +225,31 @@ public class CrimeFragment extends Fragment {
             mCrime.setHour(hour);
             mCrime.setMinute(minute);
             mTimeButton.setText(String.valueOf(mCrime.getHour() + ":" + mCrime.getMinute()));
+            populateWithCrimes(mCrime);
         }
     }
 
     private void updateDate() {
         mDateButton.setText(DateFormat.getDateInstance(DateFormat.FULL).format(mCrime.getDate()));
+    }
+
+    private void populateWithCrimes(Crime crime) {
+//        AppDatabase.getAppDatabase(getActivity()).mCrimeDao().insertCrime(mCrime);
+        mCompositeDisposable.add(CrimeLabHelper.getInstance().insertCrime(crime)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .ignoreElements()
+                .subscribeWith(new DisposableCompletableObserver() {
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "Crime successfully inserted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                }));
     }
 
     private float screenSize() {
@@ -195,6 +267,10 @@ public class CrimeFragment extends Fragment {
         return Math.min(widthDp, heightDp);
     }
 
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mCompositeDisposable.clear();
+    }
 }
 
