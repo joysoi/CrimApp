@@ -3,7 +3,7 @@ package com.example.nikola.criminal;
 import android.app.Application;
 import android.content.Context;
 
-import com.example.nikola.criminal.database.DbHelper;
+import com.example.nikola.criminal.database.CrimeLabHelper;
 import com.facebook.stetho.Stetho;
 
 
@@ -12,7 +12,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        DbHelper.getInstance(getApplicationContext()).init(this);
+        CrimeLabHelper.getInstance().init(this);
         stethoInit(this);
     }
 
