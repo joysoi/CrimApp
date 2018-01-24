@@ -7,13 +7,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 public class Crime implements Parcelable {
 
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    private int mID;
+    private UUID mID;
     @ColumnInfo(name = "Title")
     private String mTitle;
     @ColumnInfo(name = "Date")
@@ -28,13 +30,17 @@ public class Crime implements Parcelable {
     private int mMinute;
 
     public Crime() {
-//        mID = UUID.randomUUID();
+        mID = UUID.randomUUID();
         mDate = new Date();
     }
 
-//    public UUID getID() {
-//        return mID;
-//    }
+    public UUID getID() {
+        return mID;
+    }
+
+    public void setID(UUID ID) {
+        mID = ID;
+    }
 
     public String getTitle() {
         return mTitle;
@@ -57,7 +63,6 @@ public class Crime implements Parcelable {
     }
 
     public void setHour(int hour) {
-
         mHour = hour;
     }
 
@@ -90,13 +95,6 @@ public class Crime implements Parcelable {
         return 0;
     }
 
-    public int getID() {
-        return mID;
-    }
-
-    public void setID(int ID) {
-        mID = ID;
-    }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -108,7 +106,7 @@ public class Crime implements Parcelable {
     }
 
     protected Crime(Parcel in) {
-//        this.mID = (UUID) in.readSerializable();
+        this.mID = (UUID) in.readSerializable();
         this.mTitle = in.readString();
         long tmpMDate = in.readLong();
         this.mDate = tmpMDate == -1 ? null : new Date(tmpMDate);
