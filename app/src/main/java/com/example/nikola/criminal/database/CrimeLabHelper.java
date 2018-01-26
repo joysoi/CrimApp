@@ -32,6 +32,8 @@ public class CrimeLabHelper {
         mAppDatabase = Room.databaseBuilder(context.getApplicationContext(),
                 AppDatabase.class, "crimes.db").build();
     }
+
+
     public Single<List<Crime>> getAllCrimes() {
         return mAppDatabase.mCrimeDao().getAllCrimes();
     }
@@ -40,10 +42,14 @@ public class CrimeLabHelper {
         return mAppDatabase.mCrimeDao().getCrimeById(uuid);
     }
 
+
+//Observables represent the sources of data
     public Observable insertCrime(final Crime crime) {
         return Observable.create(new ObservableOnSubscribe() {
+            //They start emitting data once a subscriber starts listening
             @Override
             public void subscribe(ObservableEmitter e) throws Exception {
+                //It can be terminated eater successfully or with an error
                 if (!e.isDisposed()) {
                     mAppDatabase.mCrimeDao().insertCrime(crime);
                     e.onComplete();
@@ -63,6 +69,27 @@ public class CrimeLabHelper {
             }
         });
     }
-
-
 }
+
+/*An Observable is like speaker which emit value. It does some work and emits some values.
+The following are the different types of Observables in RxJava:
+    Observable  (emit more than one value)
+    Flowable    (when the Observable is emitting huge number of values and they cant be consumed by the Observer,
+                   uses BackPressureStrategy that buffers most of the data and keeps only the latest)
+    Single      (used when the Observable emit only one value, like a response from a network call)
+    Maybe       (used when the Observable emits a value or no value)
+    Completable (used when the Observable has to do some task without emitting a value)
+
+
+An Observer/Subscriber gets those values.
+Types of Observers/Subscribers in RxJava:
+    Observer
+    SingleObserver
+    MaybeObserver
+    CompletableObserver
+ */
+
+/*
+CompositeDisposable is a container that holds other disposables
+*/
+
