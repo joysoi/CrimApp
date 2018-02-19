@@ -12,7 +12,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        CrimeLabHelper.getInstance().init(this);
+        CrimeLabHelper.getInstance(getApplicationContext()).init(this);
         stethoInit(this);
     }
 
