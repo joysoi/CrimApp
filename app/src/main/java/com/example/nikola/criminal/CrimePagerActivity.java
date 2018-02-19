@@ -43,7 +43,7 @@ public class CrimePagerActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.crime_view_pager);
         final FragmentManager manager = getSupportFragmentManager();
 
-        mCompositeDisposable.add(CrimeLabHelper.getInstance().getAllCrimes()
+        mCompositeDisposable.add(CrimeLabHelper.getInstance(this).getAllCrimes()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<List<Crime>>() {
