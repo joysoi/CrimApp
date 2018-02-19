@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,8 +39,8 @@ public class CrimeListFragment extends Fragment {
     private List<Crime> mCrimes = new ArrayList<>();
     private int mLastPositionChanged = -1;
     private boolean mSubtitleVisible;
-    private TextView noDataView;
-    private Button newCrimeBtn;
+//    private TextView noDataView;
+//    private Button newCrimeBtn;
     CompositeDisposable mCompositeDisposable;
 
     @Override
@@ -61,25 +60,25 @@ public class CrimeListFragment extends Fragment {
             mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
         }
         updateUI();
-        noDataView = view.findViewById(R.id.no_data_txt_view);
-        newCrimeBtn = view.findViewById(R.id.new_crime_btn);
-        newCrimeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override 
-            public void onClick(View view) {
-                createNewCrime();
-            }
-        });
-
-
-        if (mCrimes.size() == 0) {
-            mCrimeRecyclerView.setVisibility(View.GONE);
-            noDataView.setVisibility(View.VISIBLE);
-            newCrimeBtn.setVisibility(View.VISIBLE);
-        } else {
-            mCrimeRecyclerView.setVisibility(View.VISIBLE);
-            noDataView.setVisibility(View.GONE);
-            newCrimeBtn.setVisibility(View.GONE);
-        }
+//        noDataView = view.findViewById(R.id.no_data_txt_view);
+//        newCrimeBtn = view.findViewById(R.id.new_crime_btn);
+//        newCrimeBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                createNewCrime();
+//            }
+//        });
+//
+//
+//        if (mCrimes.size() == 0) {
+//            mCrimeRecyclerView.setVisibility(View.GONE);
+//            noDataView.setVisibility(View.VISIBLE);
+//            newCrimeBtn.setVisibility(View.VISIBLE);
+//        } else {
+//            mCrimeRecyclerView.setVisibility(View.VISIBLE);
+//            noDataView.setVisibility(View.GONE);
+//            newCrimeBtn.setVisibility(View.GONE);
+//        }
 
         return view;
     }
@@ -122,7 +121,7 @@ public class CrimeListFragment extends Fragment {
 
     private void createNewCrime() {
         final Crime crime = new Crime();
-        mCompositeDisposable.add(CrimeLabHelper.getInstance().insertCrime(crime)
+        mCompositeDisposable.add(CrimeLabHelper.getInstance(getActivity()).insertCrime(crime)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .ignoreElements()
@@ -162,7 +161,7 @@ public class CrimeListFragment extends Fragment {
         } else {
             mAdapter.notifyDataSetChanged();
         }
-        mCompositeDisposable.add(CrimeLabHelper.getInstance().getAllCrimes()
+        mCompositeDisposable.add(CrimeLabHelper.getInstance(getActivity()).getAllCrimes()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<List<Crime>>() {
