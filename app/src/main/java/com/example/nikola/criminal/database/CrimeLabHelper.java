@@ -3,6 +3,7 @@ package com.example.nikola.criminal.database;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,15 +15,17 @@ import io.reactivex.Single;
 public class CrimeLabHelper {
 
     private static CrimeLabHelper INSTANCE;
+    private Context mContext;
 
-    public static CrimeLabHelper getInstance() {
+    public static CrimeLabHelper getInstance(Context context) {
         if (INSTANCE == null) {
-            INSTANCE = new CrimeLabHelper();
+            INSTANCE = new CrimeLabHelper(context);
         }
         return INSTANCE;
     }
 
-    private CrimeLabHelper() {
+    private CrimeLabHelper(Context context) {
+        mContext = context.getApplicationContext();
     }
 
     private AppDatabase mAppDatabase;
@@ -33,6 +36,12 @@ public class CrimeLabHelper {
                 AppDatabase.class, "crimes.db").build();
     }
 
+//    This method returns File objects that point in the right direction
+
+    public File getPhotoFile(Crime crime) {
+        File filesDir = mContext.getFilesDir();
+        return new File(filesDir, crime.getPhotoFilename());
+    }
 
     public Single<List<Crime>> getAllCrimes() {
         return mAppDatabase.mCrimeDao().getAllCrimes();
@@ -43,7 +52,7 @@ public class CrimeLabHelper {
     }
 
 
-//Observables represent the sources of data
+    //Observables represent the sources of data
     public Observable insertCrime(final Crime crime) {
         return Observable.create(new ObservableOnSubscribe() {
             //They start emitting data once a subscriber starts listening
