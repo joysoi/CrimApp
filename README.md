@@ -1,4 +1,2 @@
 # CrimApp
-Enlisting "crimes" in the work area
-
-### Still in progress...
+App for enlisting and reporting "crimes" in the work area.
